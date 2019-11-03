@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.python.core.PyCode;
 import org.python.core.PyFrame;
+import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
@@ -29,8 +30,10 @@ import java.util.stream.Collectors;
 
 @Mod(Forgethon.MODID)
 public class Forgethon {
+	
 	public static final Logger LOGGER = LogManager.getLogger();
 	public static final String MODID = "forgethon";
+	private static List<PythonMod> mods;
 
 	public Forgethon() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -39,7 +42,6 @@ public class Forgethon {
 
 	public void setup(final FMLCommonSetupEvent event) {
 		LOGGER.info("Scanning Python mods..");
-		List<PythonMod> mods = null;
 		try {
 			mods = ModLoader.search(new File("mods"));
 		} catch (IOException e) {
@@ -52,16 +54,29 @@ public class Forgethon {
 		
 		LOGGER.info("Constructing mods..");
 		for (PythonMod mod : mods) {
-			String code = mod.getMainCode();
-			PythonInterpreter intr = new PythonInterpreter();
-			intr.exec(code);
-			
+			mod.construct();
+		}
+		
+		for (PythonMod mod : mods) {
+			PythonInterpreter intr = mod.getInterpreter();
+			PyObject setup = intr.get("setup");
+			if (setup != null && setup instanceof PyFunction) {
+				PyFunction func = (PyFunction) setup;
+				func._jcall(new Object[0]);
+			}
 		}
 	}
 
 	@SubscribeEvent
 	public void onServerStarting(FMLServerStartingEvent event) {
-		LOGGER.info("HELLO from server starting");
+		for (PythonMod mod : mods) {
+			PythonInterpreter intr = mod.getInterpreter();
+			PyObject f = intr.get("on_server_starting");
+			if (f != null && f instanceof PyFunction) {
+				PyFunction func = (PyFunction) f;
+				func._jcall(new Object[0]);
+			}
+		}
 	}
 
 	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
