@@ -1,7 +1,5 @@
 package io.zenith391.forgethon;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.zip.ZipFile;
 
 public class PythonMod {
@@ -15,6 +13,7 @@ public class PythonMod {
 		this.displayName = displayName;
 		version = ver;
 		this.zip = zip;
+		this.mainCode = mainCode;
 	}
 	
 	public String getId() {

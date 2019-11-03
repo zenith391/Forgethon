@@ -15,6 +15,10 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.python.core.PyCode;
+import org.python.core.PyFrame;
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 
 import io.zenith391.forgethon.loader.ModLoader;
 
@@ -49,6 +53,9 @@ public class Forgethon {
 		LOGGER.info("Constructing mods..");
 		for (PythonMod mod : mods) {
 			String code = mod.getMainCode();
+			PythonInterpreter intr = new PythonInterpreter();
+			intr.exec(code);
+			
 		}
 	}
 
