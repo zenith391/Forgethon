@@ -6,18 +6,31 @@ import java.util.zip.ZipFile;
 
 public class PythonMod {
 
-	protected String name, description, version;
+	protected String modId, displayName, version;
+	protected String mainCode;
 	protected ZipFile zip;
 	
-	public PythonMod(String name, String desc, String ver, ZipFile zip) {
-		this.name = name;
-		description = desc;
+	public PythonMod(String modId, String ver, String displayName, String mainCode, ZipFile zip) {
+		this.modId = modId;
+		this.displayName = displayName;
 		version = ver;
 		this.zip = zip;
 	}
 	
-	public InputStream getMainFile() throws IOException {
-		return zip.getInputStream(zip.getEntry("main.py"));
+	public String getId() {
+		return modId;
+	}
+	
+	public String getDisplayName() {
+		return displayName;
+	}
+	
+	public String getVersion() {
+		return version;
+	}
+	
+	public String getMainCode() {
+		return mainCode;
 	}
 	
 }

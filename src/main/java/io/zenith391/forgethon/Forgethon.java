@@ -24,38 +24,45 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mod(Forgethon.MODID)
-public class Forgethon
-{
-    // Directly reference a log4j logger.
-    public static final Logger LOGGER = LogManager.getLogger();
-    public static final String MODID = "forgethon";
+public class Forgethon {
+	public static final Logger LOGGER = LogManager.getLogger();
+	public static final String MODID = "forgethon";
 
-    public Forgethon() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        MinecraftForge.EVENT_BUS.register(this);
-    }
+	public Forgethon() {
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+		MinecraftForge.EVENT_BUS.register(this);
+	}
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
-        LOGGER.info("Loading Python mods..");
-        try {
-			List<PythonMod> mods = ModLoader.search(new File("mods"));
+	public void setup(final FMLCommonSetupEvent event) {
+		LOGGER.info("Scanning Python mods..");
+		List<PythonMod> mods = null;
+		try {
+			mods = ModLoader.search(new File("mods"));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return;
 		}
-    }
-    
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
-    }
-    
-    @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-    	
-        @SubscribeEvent
-        public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-            LOGGER.info("HELLO from Register Block");
-        }
-    }
+		for (PythonMod mod : mods) {
+			LOGGER.info("Found python mod " + mod.getDisplayName() + " (" + mod.getId() + " " + mod.getVersion() + ")");
+		}
+		
+		LOGGER.info("Constructing mods..");
+		for (PythonMod mod : mods) {
+			String code = mod.getMainCode();
+		}
+	}
+
+	@SubscribeEvent
+	public void onServerStarting(FMLServerStartingEvent event) {
+		LOGGER.info("HELLO from server starting");
+	}
+
+	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+	public static class RegistryEvents {
+
+		@SubscribeEvent
+		public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
+			LOGGER.info("HELLO from Register Block");
+		}
+	}
 }
