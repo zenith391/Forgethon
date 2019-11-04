@@ -4,6 +4,10 @@ import java.util.zip.ZipFile;
 
 import org.python.util.PythonInterpreter;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.Block.Properties;
+import net.minecraft.block.material.Material;
+
 public class PythonMod {
 
 	protected String modId, displayName, version;
@@ -39,10 +43,23 @@ public class PythonMod {
 		return intr;
 	}
 	
+	public Material material() {
+		return Material.ANVIL;
+	}
+	
+	public Block block(Material mat) {
+		return new Block(Properties.create(mat));
+	}
+	
 	public void construct() {
-		intr = new PythonInterpreter();
-		intr.set("logger", Forgethon.LOGGER);
-		intr.exec(mainCode);
+		try {
+			intr = new PythonInterpreter();
+			intr.set("logger", Forgethon.LOGGER);
+			intr.set("mod", this);
+			intr.exec(mainCode);
+		} catch (Exception e) {
+			throw new Error("Error in " + displayName, e);
+		}
 	}
 	
 }

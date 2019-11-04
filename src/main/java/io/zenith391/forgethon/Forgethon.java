@@ -38,9 +38,10 @@ public class Forgethon {
 	public Forgethon() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 		MinecraftForge.EVENT_BUS.register(this);
+		scan();
 	}
-
-	public void setup(final FMLCommonSetupEvent event) {
+	
+	public void scan() {
 		LOGGER.info("Scanning Python mods..");
 		try {
 			mods = ModLoader.search(new File("mods"));
@@ -67,6 +68,10 @@ public class Forgethon {
 		}
 	}
 
+	public void setup(final FMLCommonSetupEvent event) {
+		
+	}
+
 	@SubscribeEvent
 	public void onServerStarting(FMLServerStartingEvent event) {
 		for (PythonMod mod : mods) {
@@ -84,7 +89,16 @@ public class Forgethon {
 
 		@SubscribeEvent
 		public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
-			LOGGER.info("HELLO from Register Block");
+			LOGGER.info("Registering blocks");
+			for (PythonMod mod : mods) {
+				PythonInterpreter intr = mod.getInterpreter();
+				PyObject f = intr.get("on_blocks_registry");
+				if (f != null && f instanceof PyFunction) {
+					PyFunction func = (PyFunction) f;
+					func._jcall(new Object[] {blockRegistryEvent});
+				}
+			}
 		}
+		
 	}
 }
